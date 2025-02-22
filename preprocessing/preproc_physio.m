@@ -142,6 +142,7 @@ for i = 1:numel(id)
         card_bpf =  filtfilt(B,A,double(card_dat));
 
         % Detect cardiac peaks
+        clear maxtab_c; 
         card_rng = iqr(card_bpf); 
         minHeight = 0.05*card_rng;
         [pks,locs] = findpeaks(card_bpf,'minpeakheight',minHeight);
