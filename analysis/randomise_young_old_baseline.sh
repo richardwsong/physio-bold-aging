@@ -7,21 +7,23 @@
 module load FSL
 
 # Define paths for mask, output directory, and input files
-mask_path="/path/to/MNI152_T1_2mm_brain.nii"
-output_dir="/path/to/output_dir"
+mask_path="metadata/MNI152_T1_2mm_brain.nii"
+output_dir="data/nki_pve_results"
 randomise_output_dir="$output_dir/randomise"
 
 # Create the randomise output directory if it doesn't exist
 mkdir -p "$randomise_output_dir"
 
+# Convert design and contrast text files to FSL-compatible .mat format
+Text2Vest "$output_dir/design_matrix.txt" "$output_dir/design.mat"
+Text2Vest "$output_dir/contrast_matrix.txt" "$output_dir/design.con"
+
 # Array of required files
 declare -a required_files=(
     "$mask_path"
-    "$output_dir/design.txt"
+    "$output_dir/design.mat"
     "$output_dir/design.con"
-    "$output_dir/hrco2_cov_young_old.nii.gz"
-    "$output_dir/hr_cov_young_old.nii.gz"
-    "$output_dir/co2_cov_young_old.nii.gz"
+    "$output_dir/hrrv_cov_young_old.nii.gz"
 )
 
 # Check if all required files exist
@@ -32,32 +34,10 @@ for file in "${required_files[@]}"; do
     fi
 done
 
-# Convert design and contrast text files to FSL-compatible .mat format
-Text2Vest "$output_dir/design.txt" "$output_dir/design.mat"
-Text2Vest "$output_dir/design.con" "$output_dir/design.con"
-
 # Run randomise for HRCO2
 echo "Running randomise for HRCO2..."
-randomise -i "$output_dir/hrco2_cov_young_old.nii.gz" \
-          -o "$randomise_output_dir/hrco2" \
-          -m "$mask_path" \
-          -d "$output_dir/design.mat" \
-          -t "$output_dir/design.con" \
-          -n 5000 -T
-
-# Run randomise for HR
-echo "Running randomise for HR..."
-randomise -i "$output_dir/hr_cov_young_old.nii.gz" \
-          -o "$randomise_output_dir/hr" \
-          -m "$mask_path" \
-          -d "$output_dir/design.mat" \
-          -t "$output_dir/design.con" \
-          -n 5000 -T
-
-# Run randomise for CO2
-echo "Running randomise for CO2..."
-randomise -i "$output_dir/co2_cov_young_old.nii.gz" \
-          -o "$randomise_output_dir/co2" \
+randomise -i "$output_dir/hrrv_cov_young_old.nii.gz" \
+          -o "$randomise_output_dir/hrrv" \
           -m "$mask_path" \
           -d "$output_dir/design.mat" \
           -t "$output_dir/design.con" \
