@@ -112,40 +112,40 @@ def calculate_breathing_rate_new(resp_signal, fs):
     return rsp_signals["RSP_Rate"].mean()
 
 # Function to load and calculate HRV metrics and breathing rate
-def calc_physio_features(subs_id):
-    for i, name in enumerate(subs_id):
-        if os.path.exists(f"/data1/neurdylab/datasets/nki_rockland/preproc_physio/{name}/{name}_ses-BAS1_task-rest_acq-1400_physio_physOUT.mat"):
-            hrv_data = loadmat(f"/data1/neurdylab/datasets/nki_rockland/preproc_physio/{name}/{name}_ses-BAS1_task-rest_acq-1400_physio_physOUT.mat")
-        else:
-            hrv_data = loadmat(f"/data1/neurdylab/datasets/nki_rockland/preproc_physio_QA_bad/{name}/{name}_ses-BAS1_task-rest_acq-1400_physio_physOUT.mat")
+def calc_physio_features(name):
+    if os.path.exists(f"/data1/neurdylab/datasets/nki_rockland/preproc_physio/{name}/{name}_ses-BAS1_task-rest_acq-1400_physio_physOUT.mat"):
+        hrv_data = loadmat(f"/data1/neurdylab/datasets/nki_rockland/preproc_physio/{name}/{name}_ses-BAS1_task-rest_acq-1400_physio_physOUT.mat")
+    else:
+        hrv_data = loadmat(f"/data1/neurdylab/datasets/nki_rockland/preproc_physio_QA_bad/{name}/{name}_ses-BAS1_task-rest_acq-1400_physio_physOUT.mat")
 
-        #hrv_data = loadmat(f"/data1/neurdylab/datasets/nki_rockland/preproc_physio/{name}/{name}_ses-BAS1_task-rest_acq-1400_physio_physOUT.mat")
-        ibi = hrv_data['OUT_p']['IBI_clean'][0][0].flatten()
-        ibi = ibi[~np.isnan(ibi)]
-        ibi_ms = ibi * 1000  # Convert to milliseconds
-        rmssd = np.log(np.sqrt(np.mean(np.diff(ibi_ms) ** 2)))
+    #hrv_data = loadmat(f"/data1/neurdylab/datasets/nki_rockland/preproc_physio/{name}/{name}_ses-BAS1_task-rest_acq-1400_physio_physOUT.mat")
+    ibi = hrv_data['OUT_p']['IBI_clean'][0][0].flatten()
+    ibi = ibi[~np.isnan(ibi)]
+    ibi_ms = ibi * 1000  # Convert to milliseconds
+    rmssd = np.log(np.sqrt(np.mean(np.diff(ibi_ms) ** 2)))
 
-        data = loadmat(f"/data1/neurdylab/datasets/nki_rockland/preproc_physio2/{name}/{name}_ses-BAS1_task-rest_acq-1400_physio_physOUT.mat")
+    data = loadmat(f"/data1/neurdylab/datasets/nki_rockland/preproc_physio2/{name}/{name}_ses-BAS1_task-rest_acq-1400_physio_physOUT.mat")
 
-        hr = data['REGS']['hr'][0][0].flatten()
-        rv = data['REGS']['rv'][0][0].flatten()
-        resp = data['OUT_p']['resp'][0][0][0][0][1].flatten()
-        breathing_rate = calculate_breathing_rate_new(resp, fs=62.5)
+    hr = data['REGS']['hr'][0][0].flatten()
+    rv = data['REGS']['rv'][0][0].flatten()
+    resp = data['OUT_p']['resp'][0][0][0][0][1].flatten()
+    breathing_rate = calculate_breathing_rate_new(resp, fs=62.5)
+    breathing_rate = np.mean(breathing_rate)    
 
-        sd_rv = np.std(rv)
-        avg_hr = np.mean(hr)
+    sd_rv = np.std(rv)
+    avg_hr = np.mean(hr)
 
-        # Calculate power spectral density for LF and HF
-        f, psd = welch(ibi_ms, fs=1 / np.mean(ibi), nperseg=len(ibi))
-        lf_band = (f >= 0.04) & (f < 0.15)
-        hf_band = (f >= 0.15) & (f < 0.4)
+    # Calculate power spectral density for LF and HF
+    f, psd = welch(ibi_ms, fs=1 / np.mean(ibi), nperseg=len(ibi))
+    lf_band = (f >= 0.04) & (f < 0.15)
+    hf_band = (f >= 0.15) & (f < 0.4)
 
-        lf = np.log(np.trapz(psd[lf_band], f[lf_band]))
-        hf = np.log(np.trapz(psd[hf_band], f[hf_band]))
-        hr = detrend(hr)
-        rv = detrend(rv)
-        print(f"Processed Physio {name}")
-        return hr, rv, lf, hf, avg_hr, sd_rv, breathing_rate
+    lf = np.log(np.trapz(psd[lf_band], f[lf_band]))
+    hf = np.log(np.trapz(psd[hf_band], f[hf_band]))
+    hr = detrend(hr)
+    rv = detrend(rv)
+    print(f"Processed Physio {name}")
+    return hr, rv, lf, hf, avg_hr, sd_rv, breathing_rate
 
 def calc_percent_variance_explained(name, mask_indices): 
     """
@@ -182,7 +182,6 @@ def calc_percent_variance_explained(name, mask_indices):
     nn, _ = load_nii(nii_path)
 
     # Detrend physiological signals to remove linear trends
-    co2 = detrend(co2)
     hr = detrend(hr)
     rv = detrend(rv)
 
@@ -199,7 +198,7 @@ def calc_percent_variance_explained(name, mask_indices):
     Y_clean = Y.T # (voxel x time)
     Y_clean = Y_clean[mask_indices, :] # mask the brain regions inside the mask (MNI template)
 
-    X = create_physio_basis(hr, rv, 1.4) # X is the design matrix for physiological regressors  
+    X = create_physio_basis(hr, rv) # X is the design matrix for physiological regressors  
 
     # HRRV only
     X5 = np.hstack([np.ones((X.shape[0], 1)), X[:, 4:]])
@@ -226,7 +225,7 @@ def process_participant(i, subs_id, mask_indices):
     return i, hrrv, lf, hf, avg_hr, sd_rv, br
 
 # Function to create a design matrix
-def create_design_matrix(df):
+def create_design_matrix(df, physio_stats):
     """
     Create a design matrix for group comparison (young vs. old).
 
@@ -236,10 +235,11 @@ def create_design_matrix(df):
     Returns:
         np.ndarray: Design matrix with one column for "young" and another for "old".
     """
-    young = np.array(df['age'] < 50, dtype=int)
-    old = np.array(df['age'] >= 50, dtype=int)
-    gender = np.array(df['gender'] == 'M', dtype=int)
-    return np.concatenate((young[:, np.newaxis], old[:, np.newaxis]), axis=1)
+    young = np.array(df['age'] < 50, dtype=float)
+    old = np.array(df['age'] >= 50, dtype=float)
+    gender = np.array(df['gender'] == 'M', dtype=float)
+    design_matrix = np.concatenate((young[:, np.newaxis], old[:, np.newaxis], gender[:, np.newaxis], physio_stats), axis=1)
+    return design_matrix
 
 # Function to create a contrast matrix
 def create_contrast_matrix():
@@ -249,7 +249,7 @@ def create_contrast_matrix():
     Returns:
         np.ndarray: Contrast matrix for statistical analysis.
     """
-    return np.array([[1, -1], [-1, 1]])
+    return np.array([[1, -1, 0, 0, 0, 0, 0, 0], [-1, 1, 0, 0, 0, 0, 0, 0]])
 
 def update_brain_map(data_update, mask_indices):
     """
@@ -289,30 +289,31 @@ def main():
     - Generates and saves design and contrast matrices for further analysis.
     """
     # Load demographic data and brain mask
-    df = np.read_csv('../metadata/nki_age_gender_v2.csv')
-    subs = df['subs_id'].values
+    df = pd.read_csv('metadata/nki_age_gender_v2.csv')
+    subs = df['sub_id'].values
     age = df['age'].values
     gender = df['gender'].values
     N = len(subs)
 
-    mask, affine = load_nii("../metadata/nki_age_gender_v2.csv")
+    mask, affine = load_nii("metadata/MNI152_T1_2mm_brain.nii")
     mask = mask.astype(bool)
     mask_indices = np.where(mask.flatten())[0]
 
     # Initialize result arrays
     hrrv_cov = np.zeros((91, 109, 91, N))
+    physio_stats = np.zeros((N, 5))
 
     # Parallel processing of participants
     num_cores = 16
-    with concurrent.futures.ProcessPoolExecutor(max_workers=num_cores) as executor:
-        try: 
+    with concurrent.futures.ProcessPoolExecutor(max_workers=num_cores) as executor: 
+        try:
             futures = [executor.submit(process_participant, i, subs, mask_indices) for i in range(N)]
             for future in concurrent.futures.as_completed(futures):
                 index, hrrv_cov_update, lf, hf, avg_hr, sd_rv, br = future.result()
 
                 # Reshape results back into brain space
                 hrrv_cov[:, :, :, index] = update_brain_map(hrrv_cov_update, mask_indices)
-
+                physio_stats[index, :] = lf, hf, avg_hr, sd_rv, br
                 print(f"Processing complete for participant {subs[index]}")
         except Exception as e:
             print(f"Error: {e}")
@@ -324,13 +325,13 @@ def main():
     save_nifti(hrrv_cov, affine, os.path.join(output_dir, 'hrrv_cov_young_old.nii.gz'))
 
     # Generate and save design and contrast matrices
-    design = create_design_matrix(df)
+    design = create_design_matrix(df, physio_stats)
     np.savetxt(os.path.join(output_dir, 'design_matrix.txt'), design, fmt='%d')
 
     contrast = create_contrast_matrix()
     np.savetxt(os.path.join(output_dir, 'contrast_matrix.txt'), contrast, fmt='%d')
-
-    os.system('bash /path/to/randomise_young_old_baseline.sh') # Run randomise script for group comparison
+    print("Done!")
+    #os.system('bash /path/to/randomise_young_old_baseline.sh') # Run randomise script for group comparison
 
 if __name__ == "__main__":
     main()
