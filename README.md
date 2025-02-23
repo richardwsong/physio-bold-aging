@@ -11,6 +11,23 @@ This repository contains the analysis code for investigating the relationship be
 - Cross-correlation between physiological measures and BOLD signal
 - Variance explained by different physiological components
 
+## Repository Structure
+```
+.
+├── analysis/
+│   ├── pve_nki.py      # NKI dataset analysis
+│   └── pve_hrver.py    # HRV-ER dataset analysis
+├── metadata/
+│   ├── nki_age_gender_v2.csv          # NKI participant information
+│   ├── hrver_ses_pre_age_gender.csv   # HRV-ER pre-session data
+│   ├── hrver_ses_post_age_gender.csv  # HRV-ER post-session data
+│   └── MNI152_T1_2mm_brain.nii        # MNI template for masking
+├── data/               # Analysis outputs (created during runtime)
+│   ├── nki_pve_results_*/
+│   └── hrver_pve_results_*/
+└── logs/              # Analysis logs with timestamps
+```
+
 ## Data Preprocessing Pipeline
 
 ### Physiological Data Processing
@@ -75,23 +92,6 @@ mkdir -p logs
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-```
-
-## Repository Structure
-```
-.
-├── analysis/
-│   ├── pve_nki.py      # NKI dataset analysis
-│   └── pve_hrver.py    # HRV-ER dataset analysis
-├── metadata/
-│   ├── nki_age_gender_v2.csv          # NKI participant information
-│   ├── hrver_ses_pre_age_gender.csv   # HRV-ER pre-session data
-│   ├── hrver_ses_post_age_gender.csv  # HRV-ER post-session data
-│   └── MNI152_T1_2mm_brain.nii        # MNI template for masking
-├── data/               # Analysis outputs (created during runtime)
-│   ├── nki_pve_results_*/
-│   └── hrver_pve_results_*/
-└── logs/              # Analysis logs with timestamps
 ```
 
 ## Running the Analysis
