@@ -283,31 +283,66 @@ def process_participant(i, subs_id, mask_indices, session):
     return i, hrrv, lf, hf, avg_hr, sd_rv, br
 
 # Function to create a design matrix
-def create_design_matrix(df, physio_stats):
+def create_design_matrix(df, physio_stats, covariates=None):
     """
-    Create a design matrix for group comparison (young vs. old).
+    Create a design matrix for group comparison (young vs. old) with flexible covariates.
 
     Parameters:
         df (pd.DataFrame): DataFrame containing participant information, including age.
+        physio_stats (np.ndarray): Array of physiological statistics (lf, hf, avg_hr, avg_co2, br).
+        covariates (list, optional): List of covariates to include. Options are:
+            - 'gender': Include gender as covariate
+            - 'lf': Include low frequency HRV
+            - 'hf': Include high frequency HRV
+            - 'avg_hr': Include average heart rate
+            - 'avg_co2': Include average CO2
+            - 'br': Include breathing rate
+            If None, only includes young/old groups without covariates.
 
     Returns:
-        np.ndarray: Design matrix with one column for "young" and another for "old".
+        np.ndarray: Design matrix with specified columns
     """
+    # Base design matrix with young/old groups
     young = np.array(df['age'] < 50, dtype=float)
     old = np.array(df['age'] >= 50, dtype=float)
-    gender = np.array(df['gender'] == 'MALE', dtype=float)
-    design_matrix = np.concatenate((young[:, np.newaxis], old[:, np.newaxis], gender[:, np.newaxis], physio_stats), axis=1)
+    design_matrix = np.concatenate((young[:, np.newaxis], old[:, np.newaxis]), axis=1)
+
+    if covariates is None:
+        return design_matrix
+
+    # Dictionary mapping covariate names to their data
+    covariate_map = {
+        'gender': np.array(df['gender'] == 'MALE', dtype=float)[:, np.newaxis],
+        'lf': physio_stats[:, 0:1],
+        'hf': physio_stats[:, 1:2],
+        'avg_hr': physio_stats[:, 2:3],
+        'avg_co2': physio_stats[:, 3:4],
+        'br': physio_stats[:, 4:5]
+    }
+
+    # Add requested covariates
+    for cov in covariates:
+        if cov in covariate_map:
+            design_matrix = np.concatenate((design_matrix, covariate_map[cov]), axis=1)
+        else:
+            print(f"Warning: Covariate '{cov}' not recognized and will be skipped")
+
     return design_matrix
 
-# Function to create a contrast matrix
-def create_contrast_matrix():
+def create_contrast_matrix(n_covariates=0):
     """
     Create a contrast matrix for group comparison (young vs. old).
+
+    Parameters:
+        n_covariates (int): Number of covariates in the design matrix
 
     Returns:
         np.ndarray: Contrast matrix for statistical analysis.
     """
-    return np.array([[1, -1, 0, 0, 0, 0, 0, 0], [-1, 1, 0, 0, 0, 0, 0, 0]])
+    # Create contrast vector with zeros for covariates
+    contrast_vector = np.zeros(2 + n_covariates)
+    contrast_vector[0:2] = [1, -1]  # young vs old contrast
+    return np.vstack([contrast_vector, -contrast_vector])
 
 def update_brain_map(data_update, mask_indices):
     """
@@ -377,18 +412,23 @@ def main():
         except Exception as e:
             print(f"Error: {e}")
 
-    output_dir = 'data/hrver_pve_results'
+    # Specify which covariates to include
+    covariates = ['gender']  # Example: only control for gender
+
+    # Create output directory name that includes all covariates
+    output_dir = 'data/hrver_pve_results_' + '_'.join(covariates)
     os.makedirs(output_dir, exist_ok=True)
 
     # Save variance explained results as NIfTI files
     save_nifti(hrrv_cov, affine, os.path.join(output_dir, 'hrco2_cov_young_old.nii.gz'))
 
     # Generate and save design and contrast matrices
-    design = create_design_matrix(df, physio_stats)
-    np.savetxt(os.path.join(output_dir, 'design_matrix.txt'), design, fmt='%d')
+    design = create_design_matrix(df, physio_stats, covariates=covariates)
+    np.savetxt(os.path.join(output_dir, 'design_matrix.txt'), design, fmt='%.6f')
 
-    contrast = create_contrast_matrix()
+    contrast = create_contrast_matrix(n_covariates=len(covariates))
     np.savetxt(os.path.join(output_dir, 'contrast_matrix.txt'), contrast, fmt='%d')
+    
     print("Done!")
     #os.system('bash /path/to/randomise_young_old_baseline.sh') # Run randomise script for group comparison
 

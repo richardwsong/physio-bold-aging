@@ -11,21 +11,6 @@ This repository contains the analysis code for investigating the relationship be
 - Cross-correlation between physiological measures and BOLD signal
 - Variance explained by different physiological components
 
-## Repository Structure
-
-```
-.
-├── preprocessing/
-│   ├── preproc_physio.m    # Physiological data preprocessing
-│   └── preproc_imaging.sh  # fMRI preprocessing pipeline
-├── analysis/
-│   ├── cross_corr.py       # Cross-correlation analysis
-│   ├── percent_var_explained.ipynb  # Percent Variance Explained analysis
-│   └── physio_stats.py     # Statistical analysis of physiological measures
-├── metadata/               # Subject information and experiment metadata
-└── requirements.txt        # Python dependencies
-```
-
 ## Data Preprocessing Pipeline
 
 ### Physiological Data Processing
@@ -78,52 +63,104 @@ Additional requirements:
 - ANTs
 - MATLAB (for physiological preprocessing)
 
-## Installation and Setup
 
-1. Clone the repository:
-   ```bash
-   git clone [repository-url]
-   ```
+1. Create required directories:
+```bash
+mkdir -p data/{nki,hrver}_pve_results_{gender,avg_hr,lf,hf,avg_co2,br}
+mkdir -p logs
+```
 
-2. Install Python dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+2. Ensure you have the required Python packages:
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-3. Ensure FSL, AFNI, and ANTs are installed and properly configured in your environment.
+## Repository Structure
+```
+.
+├── analysis/
+│   ├── pve_nki.py      # NKI dataset analysis
+│   └── pve_hrver.py    # HRV-ER dataset analysis
+├── metadata/
+│   ├── nki_age_gender_v2.csv          # NKI participant information
+│   ├── hrver_ses_pre_age_gender.csv   # HRV-ER pre-session data
+│   ├── hrver_ses_post_age_gender.csv  # HRV-ER post-session data
+│   └── MNI152_T1_2mm_brain.nii        # MNI template for masking
+├── data/               # Analysis outputs (created during runtime)
+│   ├── nki_pve_results_*/
+│   └── hrver_pve_results_*/
+└── logs/              # Analysis logs with timestamps
+```
 
-## Usage
+## Running the Analysis
 
-1. **Physiological Data Preprocessing**
-   ```matlab
-   % In MATLAB
-   run preprocessing/preproc_physio.m
-   ```
+### NKI Dataset Analysis
 
-2. **fMRI Preprocessing**
-   ```bash
-   bash preprocessing/preproc_imaging.sh
-   ```
+The `pve_nki.py` script analyzes physiological variance in the NKI dataset.
 
-3. **Analysis**
-   - Run cross-correlation analysis:
-     ```python
-     python analysis/cross_corr.py
-     ```
-   - Run variance explained analysis using Jupyter notebook:
-     ```bash
-     jupyter notebook analysis/percent_var_explained.ipynb
-     ```
-   - Run physiological statistics:
-     ```python
-     python analysis/physio_stats.py
-     ```
+Available covariates:
+- gender
+- lf (low frequency HRV)
+- hf (high frequency HRV)
+- avg_hr (average heart rate)
+- sd_rv (standard deviation of respiratory variation)
+- br (breathing rate)
 
-## Data Availability
+To run the analysis and subsequent FSL randomise:
+```bash
+# Run PVE analysis
+nohup python -u analysis/pve_nki.py > logs/pve_nki_$(date +%Y%m%d_%H%M%S).log 2>&1 &
 
-The preprocessed physiological data used in this analysis is available at:
-https://vanderbilt.app.box.com/s/2v0qwfitb07crqjgtorlg5wtgs2y3mhk
+# Run FSL randomise on the results
+nohup bash randomise_nki_young_old.sh > logs/randomise_nki_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+```
 
-## Contact
+### HRV-ER Dataset Analysis
 
-Email: richard.w.song@vanderbilt.edu 
+The `pve_hrver.py` script analyzes the HRV-ER dataset.
+
+Available covariates:
+- gender
+- lf (low frequency HRV)
+- hf (high frequency HRV)
+- avg_hr (average heart rate)
+- avg_co2 (average end-tidal CO2)
+- br (breathing rate)
+
+To run the analysis and subsequent FSL randomise:
+```bash
+# Run PVE analysis
+nohup python -u analysis/pve_hrver.py > logs/pve_hrver_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+# Run FSL randomise on the results
+nohup bash randomise_hrver_young_old.sh > logs/randomise_hrver_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+```
+
+## Output
+
+The analysis creates directories named according to the covariates used. For example:
+- `data/nki_pve_results_gender/` - results controlling for gender only
+- `data/hrver_pve_results_gender_avg_hr/` - results controlling for gender and average heart rate
+
+Each directory contains:
+- `*_cov_young_old.nii.gz` - Variance explained maps
+- `design_matrix.txt` - Design matrix for FSL randomise
+- `contrast_matrix.txt` - Contrast matrix for FSL randomise
+
+## Logs
+
+All script outputs are stored in the `logs/` directory with timestamps:
+- `pve_nki_YYYYMMDD_HHMMSS.log` - Output from NKI analysis
+- `pve_hrver_YYYYMMDD_HHMMSS.log` - Output from HRV-ER analysis
+- `randomise_*_YYYYMMDD_HHMMSS.log` - Output from FSL randomise
+
+## Notes
+
+- The analysis uses parallel processing with 16 cores by default
+- Age groups are defined as:
+  - Young: < 50 years
+  - Old: ≥ 50 years
+- Design matrices are formatted for FSL compatibility
+- All physiological measures are detrended before analysis
