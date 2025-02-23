@@ -19,7 +19,7 @@ module load GCC/8.2.0  OpenMPI/3.1.4
 module load FSL/6.0.1-Python-3.7.2
 
 # for ants:
-pyscripts_path="/data1/neurdylab/eegfmri_vu_pipeline/scripts/ants_python"
+pyscripts_path="preprocessing/ants_python"
 
 # start loop over subjects
 

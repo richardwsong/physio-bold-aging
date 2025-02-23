@@ -35,7 +35,7 @@ for file in "${required_files[@]}"; do
 done
 
 # Run randomise for HRCO2
-echo "Running randomise for HRCO2..."
+echo "Running randomise for HRRV..."
 randomise -i "$output_dir/hrrv_cov_young_old.nii.gz" \
           -o "$randomise_output_dir/hrrv" \
           -m "$mask_path" \
