@@ -68,6 +68,9 @@ This repository contains the analysis code for investigating the relationship be
 
 ## Dependencies
 
+Python version:
+- Python 3.8.8
+
 Python packages (specified versions in requirements.txt):
 - matplotlib
 - nibabel
@@ -82,7 +85,15 @@ Additional requirements:
 - ANTs
 - MATLAB (for physiological preprocessing)
 
-Ensure you have the required Python packages and create required directories:
+## Setup
+
+1. Clone the repository:
+```bash
+git clone https://github.com/neurdylab/physio-bold-aging.git
+cd physio-bold-aging
+```
+
+2. Create Python virtual environment and install dependencies:
 ```bash
 mkdir -p logs
 python -m venv venv
@@ -92,21 +103,18 @@ pip install -r requirements.txt
 
 ## Preprocessing Instructions
 
-Before running the analysis, you'll need to preprocess both the physiological and fMRI data. Note that you'll need to modify the file paths in these scripts to match your directory structure.
+Before running the analysis, you'll need to preprocess both the physiological and fMRI data. Note that you'll need to modify the file paths in these scripts to match your directory structure (specifically for the locations of the physio and imaging data)
 
 ### Physiological Data
-```matlab
-% In MATLAB
-% Edit paths in preproc_physio.m first
-addpath('/path/to/your/physio/toolbox')
-run preproc_physio.m
+```bash
+matlab preprocessing/preproc_physio.m
 ```
 
 ### fMRI Data
 ```bash
 # Edit paths in preproc_imaging.sh first
 # Then run the preprocessing pipeline
-bash preproc_imaging.sh
+bash preprocessing/preproc_imaging.sh
 
 # The script performs:
 # 1. Motion correction
@@ -135,7 +143,7 @@ To run the analysis and subsequent FSL randomise:
 nohup python -u analysis/pve_nki.py > logs/pve_nki_$(date +%Y%m%d_%H%M%S).log 2>&1 &
 
 # Run FSL randomise on the results
-nohup bash randomise_nki_young_old.sh > logs/randomise_nki_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+nohup bash analysis/randomise_nki_young_old.sh > logs/randomise_nki_$(date +%Y%m%d_%H%M%S).log 2>&1 &
 ```
 
 ### HRV-ER Dataset Analysis
@@ -156,7 +164,7 @@ To run the analysis and subsequent FSL randomise:
 nohup python -u analysis/pve_hrver.py > logs/pve_hrver_$(date +%Y%m%d_%H%M%S).log 2>&1 &
 
 # Run FSL randomise on the results
-nohup bash randomise_hrver_young_old.sh > logs/randomise_hrver_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+nohup bash analysis/randomise_hrver_young_old.sh > logs/randomise_hrver_$(date +%Y%m%d_%H%M%S).log 2>&1 &
 ```
 
 ## Output
