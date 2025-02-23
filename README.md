@@ -259,17 +259,18 @@ Each directory contains contains the cross correlation analysis performed on the
 
 The whole brain cross-correlation analysis results are stored in the `results/hrver/cross_corr_whole_brain_young_old` directory. The structure of this directory is as follows:
 
-└── `cross_corr_whole_brain_young_old/`
-    ├── `temp/` - Temporary files generated during the analysis, including intermediate results.
-    ├── `hr_young-gt-old_tstat_4d.nii.gz` - Statistical map showing the t-statistics for HR correlations between young and old participants.
-    ├── `co2_young-gt-old_tstat_4d.nii.gz` - Statistical map showing the t-statistics for CO2 correlations between young and old participants.
-    ├── `design.mat` - Design matrix used for the FSL randomise analysis.
-    ├── `design.con` - Contrast matrix used for the FSL randomise analysis.
-    ├── `hr_young-gt-old_corrp_4d.nii.gz` - TFCE-corrected p-values for HR correlations (young > old).
-    ├── `co2_young-gt-old_corrp_4d.nii.gz` - TFCE-corrected p-values for CO2 correlations (young > old).
-    ├── `hr_old-gt-young_corrp_4d.nii.gz` - TFCE-corrected p-values for HR correlations (old > young).
-    └── `co2_old-gt-young_corrp_4d.nii.gz` - TFCE-corrected p-values for CO2 correlations (old > young).
-
+```
+└── cross_corr_whole_brain_young_old/
+    ├── temp/ - Temporary files generated during the analysis, including intermediate results.
+    ├── hr_young-gt-old_tstat_4d.nii.gz - Statistical map showing the t-statistics for HR correlations between young and old participants.
+    ├── co2_young-gt-old_tstat_4d.nii.gz - Statistical map showing the t-statistics for CO2 correlations between young and old participants.
+    ├── design.mat - Design matrix used for the FSL randomise analysis.
+    ├── design.con - Contrast matrix used for the FSL randomise analysis.
+    ├── hr_young-gt-old_corrp_4d.nii.gz - TFCE-corrected p-values for HR correlations (young > old).
+    ├── co2_young-gt-old_corrp_4d.nii.gz - TFCE-corrected p-values for CO2 correlations (young > old).
+    ├── hr_old-gt-young_corrp_4d.nii.gz - TFCE-corrected p-values for HR correlations (old > young).
+    └── co2_old-gt-young_corrp_4d.nii.gz - TFCE-corrected p-values for CO2 correlations (old > young).
+```
 Each statistical map is saved in NIfTI format and can be visualized using neuroimaging software such as AFNI.
 
 ## Logs
