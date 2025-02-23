@@ -104,6 +104,19 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+3. **Change File Paths**:
+   - Before running the analysis, ensure that the file paths in the utility scripts match your directory structure.
+   - Open the `utils/file_paths_hrver.py` file and verify the following path definitions:
+     - The physiological data path is defined as:
+       ```python
+       physio_path = os.path.join(f'/data1/neurdylab/songrw/derivates/hrv_er/preproc_physio_ses-{session}', sub_id, f'{sub_id}_ses-{session}_task-rest_physio_physOUT.mat')
+       ```
+     - The BOLD data path is defined as:
+       ```python
+       bold_path = os.path.join(f'/data1/neurdylab/datasets/HRV-ER/HRV-ER_proc/{sub_id}/ses-{session}/func/ants_out', f'{sub_id}_ses-{session}_task-rest_bold_mo_EPI2MNI_sm_nr.nii.gz')
+       ```
+   - Ensure that these paths reflect the actual locations of your physiological and BOLD data files.
+
 ## Preprocessing Instructions
 
 Before running the analysis, you'll need to preprocess both the physiological and fMRI data. Note that you'll need to modify the file paths in these scripts to match your directory structure (specifically for the locations of the physio and imaging data)
@@ -203,3 +216,4 @@ Preprocessed Physiological Data for HRV-ER dataset is available on [Box][box-lin
 
 [openneuro-link]: https://openneuro.org/datasets/ds003823/versions/1.2.0
 [box-link]: https://vanderbilt.app.box.com/s/2v0qwfitb07crqjgtorlg5wtgs2y3mhk
+
