@@ -6,10 +6,10 @@ Source code for "Physiological Component of the BOLD Signal: Influence of Age an
 
 This repository contains the analysis code for investigating the relationship between physiological signals and the BOLD fMRI response across different age groups, and how this relationship is modulated by heart rate variability (HRV) biofeedback training. The analysis examines:
 
-- Age-related differences in physiological contributions to BOLD signal
-- Effects of HRV biofeedback training on BOLD signal physiology
-- Cross-correlation between physiological measures and BOLD signal
-- Variance explained by different physiological components
+- Age-related differences in physiological signals 
+- Aged-related differences in percent variance explained of BOLD signal by physiological signals 
+- Age-related differences in cross-correlation between physiological measures and BOLD signal
+- Effects of HRV biofeedback training on cross-correlation between physiological measures and BOLD signal
 
 ## Repository Structure
 ```

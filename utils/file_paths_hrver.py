@@ -6,7 +6,7 @@ def get_file_paths(session, sub_id):
 
     Parameters:
         session (str): The session identifier ('pre' or 'post').
-        sub_id (str): The subject ID.
+        sub_id (str): The subject ID. (e.g. 'sub-5017')
 
     Returns:
         dict: A dictionary containing the file paths for physiological and BOLD data.
