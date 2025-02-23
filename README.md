@@ -296,3 +296,5 @@ Preprocessed Physiological Data for HRV-ER dataset is available on [Box][box-lin
 [openneuro-link]: https://openneuro.org/datasets/ds003823/versions/1.2.0
 [box-link]: https://vanderbilt.app.box.com/s/2v0qwfitb07crqjgtorlg5wtgs2y3mhk
 
+## Contact 
+If you have any questions, please email me at richard.w.song@vanderbilt.edu
