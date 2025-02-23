@@ -185,6 +185,10 @@ All script outputs are stored in the `logs/` directory with timestamps:
 - `pve_hrver_YYYYMMDD_HHMMSS.log` - Output from HRV-ER analysis
 - `randomise_*_YYYYMMDD_HHMMSS.log` - Output from FSL randomise
 
+## Data Availability 
+The HRV-ER dataset can be found online on OpenNeuro: https://openneuro.org/datasets/ds003823/versions/1.2.0 
+Preprocessed Physiological Data for HRV-ER dataset: https://vanderbilt.app.box.com/s/2v0qwfitb07crqjgtorlg5wtgs2y3mhk 
+
 ## Notes
 
 - The analysis uses parallel processing with 16 cores by default

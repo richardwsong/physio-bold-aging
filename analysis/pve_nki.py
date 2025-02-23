@@ -201,7 +201,7 @@ def calc_percent_variance_explained(name, mask_indices):
     X = create_physio_basis(hr, rv) # X is the design matrix for physiological regressors  
 
     # HRRV only
-    X5 = np.hstack([np.ones((X.shape[0], 1)), X[:, 4:]])
+    X5 = np.hstack([np.ones((X.shape[0], 1)), X[:, :]])
     B5 = pinv(X5) @ Y_clean.T  # Least-squares regression coefficients
     percent_variance_hrrv = np.var((X5 @ B5).T, axis=1, keepdims=True) / np.var(Y_clean, axis=1, keepdims=True)
 
@@ -354,10 +354,12 @@ def main():
             print(f"Error: {e}")
 
     # Specify which covariates to include
-    covariates = ['gender']  # Example: only control for gender and average heart rate
+    covariates = ['gender', 'lf', 'hf', 'avg_hr', 'sd_rv', 'br']  # Example: only control for gender and average heart rate
 
-    # Create output directory name that includes all covariates
-    output_dir = 'data/nki_pve_results_' + '_'.join(covariates)
+    if len(covariates) == 6:
+        output_dir = 'data/nki_pve_results_gender_all_covariates'
+    else:
+        output_dir = 'data/nki_pve_results_gender'
     os.makedirs(output_dir, exist_ok=True)
 
     # Save variance explained results as NIfTI files

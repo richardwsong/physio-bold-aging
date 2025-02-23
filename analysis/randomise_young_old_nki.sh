@@ -8,7 +8,7 @@ module load FSL
 
 # Define paths for mask, output directory, and input files
 mask_path="metadata/MNI152_T1_2mm_brain.nii"
-output_dir="data/nki_pve_results"
+output_dir="data/nki_pve_results_all_covariates" # Change based on the covariates used in the analysis
 randomise_output_dir="$output_dir/randomise"
 
 # Create the randomise output directory if it doesn't exist
@@ -41,6 +41,6 @@ randomise -i "$output_dir/hrrv_cov_young_old.nii.gz" \
           -m "$mask_path" \
           -d "$output_dir/design.mat" \
           -t "$output_dir/design.con" \
-          -n 5000 -T
+          -n 100 -T
 
 echo "All analyses completed successfully."
