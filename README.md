@@ -18,16 +18,19 @@ This repository contains the analysis code for investigating the relationship be
 │   ├── pve_nki.py      # NKI dataset analysis
 │   ├── pve_hrver.py    # HRV-ER dataset analysis
 │   ├── cross_corr.py   # Cross-correlation analysis between physio and BOLD
-│   └── physio_stats.py # Statistical analysis of physiological measures
-├── metadata/
+│   ├── physio_stats.py # Statistical analysis of physiological measures
+│   ├── randomise_nki_young_old.sh    # FSL randomise script for NKI analysis
+│   └── randomise_hrver_young_old.sh  # FSL randomise script for HRV-ER analysis
+├── data/
 │   ├── nki_age_gender_v2.csv          # NKI participant information
 │   ├── hrver_ses_pre_age_gender.csv   # HRV-ER pre-session data
 │   ├── hrver_ses_post_age_gender.csv  # HRV-ER post-session data
 │   └── MNI152_T1_2mm_brain.nii        # MNI template for masking
-├── data/               # Analysis outputs (created during runtime)
+│   └── masks/         # Brain masks and templates
+├── results/           # Analysis outputs (created during runtime)
 │   ├── nki_pve_results_*/
 │   └── hrver_pve_results_*/
-└── logs/              # Analysis logs with timestamps
+└── logs/              # Analysis logs with timestamps (you can create this)
 ```
 
 ## Data Preprocessing Pipeline
@@ -170,8 +173,8 @@ nohup bash analysis/randomise_hrver_young_old.sh > logs/randomise_hrver_$(date +
 ## Output
 
 The analysis creates directories named according to the covariates used. For example:
-- `data/nki_pve_results_gender/` - results controlling for gender only
-- `data/hrver_pve_results_gender_avg_hr/` - results controlling for gender and average heart rate
+- `results/nki_pve_results_gender/` - results controlling for gender only
+- `results/hrver_pve_results_gender_avg_hr/` - results controlling for gender and average heart rate
 
 Each directory contains:
 - `*_cov_young_old.nii.gz` - Variance explained maps
@@ -186,8 +189,8 @@ All script outputs are stored in the `logs/` directory with timestamps:
 - `randomise_*_YYYYMMDD_HHMMSS.log` - Output from FSL randomise
 
 ## Data Availability 
-The HRV-ER dataset can be found online on OpenNeuro: https://openneuro.org/datasets/ds003823/versions/1.2.0 
-Preprocessed Physiological Data for HRV-ER dataset: https://vanderbilt.app.box.com/s/2v0qwfitb07crqjgtorlg5wtgs2y3mhk 
+The HRV-ER dataset can be found online on [OpenNeuro][openneuro-link].
+Preprocessed Physiological Data for HRV-ER dataset is available on [Box][box-link].
 
 ## Notes
 
@@ -197,3 +200,6 @@ Preprocessed Physiological Data for HRV-ER dataset: https://vanderbilt.app.box.c
   - Old: ≥ 50 years
 - Design matrices are formatted for FSL compatibility
 - All physiological measures are detrended before analysis
+
+[openneuro-link]: https://openneuro.org/datasets/ds003823/versions/1.2.0
+[box-link]: https://vanderbilt.app.box.com/s/2v0qwfitb07crqjgtorlg5wtgs2y3mhk

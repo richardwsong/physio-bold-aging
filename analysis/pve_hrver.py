@@ -127,7 +127,7 @@ def load_pre():
     Returns:
         pd.DataFrame: A DataFrame containing the pre-session data.
     """
-    infile_pre = "metadata/hrver_ses_pre_age_gender.csv"
+    infile_pre = "data/hrver_ses_pre_age_gender.csv"
     df_pre = pd.read_csv(infile_pre)
     return df_pre
 
@@ -141,7 +141,7 @@ def load_post():
     Returns:
         pd.DataFrame: A DataFrame containing the post-session data.
     """
-    infile_post = "metadata/hrver_ses_post_age_gender.csv"
+    infile_post = "data/hrver_ses_post_age_gender.csv"
     df_post = pd.read_csv(infile_post)
     return df_post
 
@@ -158,12 +158,12 @@ def load_shared():
         pd.DataFrame: A DataFrame containing data for shared subjects in the pre-session dataset.
     """
     # Load the pre-session data and extract subject IDs
-    infile_pre = "metadata/hrver_ses_pre_age_gender.csv"
+    infile_pre = "data/hrver_ses_pre_age_gender.csv"
     df_pre = pd.read_csv(infile_pre)
     sub_pre = df_pre['subs_id'].values
 
     # Load the post-session data and extract subject IDs
-    infile_post = "metadata/hrver_ses_post_age_gender.csv"
+    infile_post = "data/hrver_ses_post_age_gender.csv"
     df_post = pd.read_csv(infile_post)
     sub_post = df_post['subs_id'].values
 
@@ -389,7 +389,7 @@ def main():
     gender = df['gender'].values
     N = len(subs)
 
-    mask, affine = load_nii("metadata/MNI152_T1_2mm_brain.nii")
+    mask, affine = load_nii("data/masks/MNI152_T1_2mm_brain.nii")
     mask = mask.astype(bool)
     mask_indices = np.where(mask.flatten())[0]
 
@@ -413,10 +413,10 @@ def main():
             print(f"Error: {e}")
 
     # Specify which covariates to include
-    covariates = ['gender']  # Example: only control for gender
+    covariates = ['gender', 'lf', 'hf', 'avg_hr']  # Example: only control for gender
 
     # Create output directory name that includes all covariates
-    output_dir = 'data/hrver_pve_results_' + '_'.join(covariates)
+    output_dir = 'results/hrver_pve_results_' + '_'.join(covariates)
     os.makedirs(output_dir, exist_ok=True)
 
     # Save variance explained results as NIfTI files

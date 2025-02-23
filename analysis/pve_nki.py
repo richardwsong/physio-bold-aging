@@ -324,13 +324,13 @@ def main():
     - Generates and saves design and contrast matrices for further analysis.
     """
     # Load demographic data and brain mask
-    df = pd.read_csv('metadata/nki_age_gender_v2.csv')
+    df = pd.read_csv('data/nki_age_gender_v2.csv')
     subs = df['sub_id'].values
     age = df['age'].values
     gender = df['gender'].values
     N = len(subs)
 
-    mask, affine = load_nii("metadata/MNI152_T1_2mm_brain.nii")
+    mask, affine = load_nii("data/masks/MNI152_T1_2mm_brain.nii")
     mask = mask.astype(bool)
     mask_indices = np.where(mask.flatten())[0]
 
@@ -357,9 +357,9 @@ def main():
     covariates = ['gender', 'lf', 'hf', 'avg_hr', 'sd_rv', 'br']  # Example: only control for gender and average heart rate
 
     if len(covariates) == 6:
-        output_dir = 'data/nki_pve_results_gender_all_covariates'
+        output_dir = 'results/nki_pve_results_all_covariates'
     else:
-        output_dir = 'data/nki_pve_results_gender'
+        output_dir = 'results/nki_pve_results_gender'
     os.makedirs(output_dir, exist_ok=True)
 
     # Save variance explained results as NIfTI files

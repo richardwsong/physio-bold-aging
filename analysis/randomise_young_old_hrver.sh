@@ -7,8 +7,8 @@
 module load FSL
 
 # Define paths for mask, output directory, and input files
-mask_path="metadata/MNI152_T1_2mm_brain.nii"
-output_dir="data/hrver_pve_results_gender" # Change based on the covariates used in the analysis
+mask_path="data/masks/MNI152_T1_2mm_brain.nii"
+output_dir="results/hrver_pve_results_gender_lf_hf_avg_hr" # Change based on the covariates used in the analysis
 randomise_output_dir="$output_dir/randomise"
 
 # Create the randomise output directory if it doesn't exist
@@ -23,7 +23,7 @@ declare -a required_files=(
     "$mask_path"
     "$output_dir/design.mat"
     "$output_dir/design.con"
-    "$output_dir/hrrv_cov_young_old.nii.gz"
+    "$output_dir/hrco2_cov_young_old.nii.gz"
 )
 
 # Check if all required files exist
@@ -37,7 +37,7 @@ done
 # Run randomise for HRCO2
 echo "Running randomise for HRCO2..."
 randomise -i "$output_dir/hrco2_cov_young_old.nii.gz" \
-          -o "$randomise_output_dir/hrrv" \
+          -o "$randomise_output_dir/hrco2" \
           -m "$mask_path" \
           -d "$output_dir/design.mat" \
           -t "$output_dir/design.con" \

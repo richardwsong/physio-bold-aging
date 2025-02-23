@@ -1,4 +1,4 @@
 # ignore virtual environment
 env/
 logs/
-data/
+results/
