@@ -16,7 +16,9 @@ This repository contains the analysis code for investigating the relationship be
 .
 ├── analysis/
 │   ├── pve_nki.py      # NKI dataset analysis
-│   └── pve_hrver.py    # HRV-ER dataset analysis
+│   ├── pve_hrver.py    # HRV-ER dataset analysis
+│   ├── cross_corr.py   # Cross-correlation analysis between physio and BOLD
+│   └── physio_stats.py # Statistical analysis of physiological measures
 ├── metadata/
 │   ├── nki_age_gender_v2.csv          # NKI participant information
 │   ├── hrver_ses_pre_age_gender.csv   # HRV-ER pre-session data
@@ -80,18 +82,37 @@ Additional requirements:
 - ANTs
 - MATLAB (for physiological preprocessing)
 
-
-1. Create required directories:
+Ensure you have the required Python packages and create required directories:
 ```bash
-mkdir -p data/{nki,hrver}_pve_results_{gender,avg_hr,lf,hf,avg_co2,br}
 mkdir -p logs
-```
-
-2. Ensure you have the required Python packages:
-```bash
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+```
+
+## Preprocessing Instructions
+
+Before running the analysis, you'll need to preprocess both the physiological and fMRI data. Note that you'll need to modify the file paths in these scripts to match your directory structure.
+
+### Physiological Data
+```matlab
+% In MATLAB
+% Edit paths in preproc_physio.m first
+addpath('/path/to/your/physio/toolbox')
+run preproc_physio.m
+```
+
+### fMRI Data
+```bash
+# Edit paths in preproc_imaging.sh first
+# Then run the preprocessing pipeline
+bash preproc_imaging.sh
+
+# The script performs:
+# 1. Motion correction
+# 2. Slice timing correction
+# 3. Registration to MNI space
+# 4. Spatial smoothing
 ```
 
 ## Running the Analysis
