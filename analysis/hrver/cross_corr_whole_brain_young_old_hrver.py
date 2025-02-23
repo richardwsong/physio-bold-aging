@@ -190,7 +190,7 @@ def process_participant_single_lag(sub_id, lag, start_lag):
 
     return hr_3d, co2_3d
 
-def main(start_lag=-1, end_lag=3):
+def main(start_lag=-1, end_lag=9):
     """
     Main function to perform the entire analysis pipeline:
     1. Configure FSL environment.
@@ -261,7 +261,7 @@ def main(start_lag=-1, end_lag=3):
                 os.path.join(output_dir, "temp", f"{measure}_lag_{lag_idx}"),
                 os.path.join(output_dir, "design.mat"),
                 os.path.join(output_dir, "design.con"),
-                n_permutations=10
+                n_permutations=1000
             )
 
             # Store results for both directions

@@ -186,7 +186,7 @@ nohup bash analysis/hrver/randomise_hrver_young_old.sh > logs/randomise_hrver_$(
 
 The cross-correlation analysis can be performed to compare physiological signals (HR and CO2) with BOLD signals across different conditions (young vs. old and pre vs. post).
 
-#### 2. Cross Correlation: Young vs. Old Analysis
+#### 2. Cross-Correlation (tissue specific): Young vs. Old Analysis
 
 To run the cross-correlation analysis for young vs. old participants:
 
@@ -197,7 +197,7 @@ To run the cross-correlation analysis for young vs. old participants:
   nohup python -u analysis/hrver/cross_corr_avg_young_old_hrver.py > logs/cross_corr_young_old_$(date +%Y%m%d_%H%M%S).log 2>&1 &
   ```
 
-#### 3. Cross Correlation: Pre vs. Post Analysis
+#### 3. Cross-Correlation (tissue specific): Pre vs. Post Analysis
 
 To run the cross-correlation analysis for pre vs. post conditions:
 
@@ -208,6 +208,31 @@ To run the cross-correlation analysis for pre vs. post conditions:
 - Run the script:
   ```bash
   nohup python -u analysis/hrver/cross_corr_avg_pre_post_hrver.py > logs/cross_corr_pre_post_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+  ```
+
+#### 4. Cross-Correlation (whole brain): Young vs. Old Analysis
+
+To run the cross-correlation analysis for young vs. old participants:
+
+- Open the `analysis/hrver/cross_corr_whole_brain_young_old_hrver.py` file.
+- To expedite the analysis, you can modify the lags that the analysis is performed on as well as the number of tfce permutations. 
+```python
+# Lines 259 - 265
+run_randomise(
+      temp_4d,
+      os.path.join(output_dir, "temp", f"{measure}_lag_{lag_idx}"),
+      os.path.join(output_dir, "design.mat"),
+      os.path.join(output_dir, "design.con"),
+      n_permutations=1000 # 5000 used in the paper, but 1000 gives similar results 
+)
+```
+```python
+# Line 193
+def main(start_lag=-1, end_lag=9): # These are the lags (in TRs) used in the paper 
+```
+- Run the script:
+  ```bash
+  nohup python -u analysis/hrver/cross_corr_whole_brain_young_old_hrver.py > logs/cross_corr_whole_brain_young_old_$(date +%Y%m%d_%H%M%S).log 2>&1 &
   ```
 
 ## Output
@@ -222,7 +247,7 @@ Each directory contains:
 - `design_matrix.txt` - Design matrix for FSL randomise
 - `contrast_matrix.txt` - Contrast matrix for FSL randomise
 
-### Cross Correlation Analysis 
+### Cross Correlation Analysis (tissue specific)
 The analysis creates directories named according to the type of cross correlation analysis performed. For example: 
 - `results/hrver/cross_corr_avg_pre_post_older_osc+` - results comparing cross correlation before and after osc+ in older adults 
 - `results/hrver/cross_corr_avg_young_old` - results comparing cross correlation between older and younger adults 
