@@ -156,15 +156,16 @@ Available covariates:
 To run the analysis and subsequent FSL randomise:
 ```bash
 # Run PVE analysis
-nohup python -u analysis/pve_nki.py > logs/pve_nki_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+nohup python -u analysis/nki/pve_nki.py > logs/pve_nki_$(date +%Y%m%d_%H%M%S).log 2>&1 &
 
 # Run FSL randomise on the results
-nohup bash analysis/randomise_nki_young_old.sh > logs/randomise_nki_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+nohup bash analysis/nki/randomise_nki_young_old.sh > logs/randomise_nki_$(date +%Y%m%d_%H%M%S).log 2>&1 &
 ```
 
 ### HRV-ER Dataset Analysis
 
-The `pve_hrver.py` script analyzes the HRV-ER dataset.
+#### PVE Analysis (Young vs Old)
+The `pve_hrver.py` script analyzes the PVE of BOLD explained by HR and CO2 in the HRV-ER dataset.
 
 Available covariates:
 - gender
@@ -177,11 +178,37 @@ Available covariates:
 To run the analysis and subsequent FSL randomise:
 ```bash
 # Run PVE analysis
-nohup python -u analysis/pve_hrver.py > logs/pve_hrver_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+nohup python -u analysis/hrver/pve_hrver.py > logs/pve_hrver_$(date +%Y%m%d_%H%M%S).log 2>&1 &
 
 # Run FSL randomise on the results
-nohup bash analysis/randomise_hrver_young_old.sh > logs/randomise_hrver_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+nohup bash analysis/hrver/randomise_hrver_young_old.sh > logs/randomise_hrver_$(date +%Y%m%d_%H%M%S).log 2>&1 &
 ```
+
+The cross-correlation analysis can be performed to compare physiological signals (HR and CO2) with BOLD signals across different conditions (young vs. old and pre vs. post).
+
+#### 1. Cross Correlation: Young vs. Old Analysis
+
+To run the cross-correlation analysis for young vs. old participants:
+
+- Open the `analysis/hrver/cross_corr_avg_young_old_hrver.py` file.
+- Modify the `tissue` variable to specify the tissue type you want to analyze (e.g., "gray_matter", "white_matter", or "ventricle").
+- Run the script:
+  ```bash
+  nohup python -u analysis/hrver/cross_corr_avg_young_old_hrver.py > logs/cross_corr_young_old_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+  ```
+
+#### 2. Cross Correlation: Pre vs. Post Analysis
+
+To run the cross-correlation analysis for pre vs. post conditions:
+
+- Open the `analysis/hrver/cross_corr_avg_pre_post_hrver.py` file.
+- Modify the `age_group` variable to specify the age group you want to analyze (e.g., "young" or "older").
+- Modify the `osc_condition` variable to specify the oscillation condition (e.g., "osc+" or "osc-").
+- Modify the `tissue` variable to specify the tissue type you want to analyze (e.g., "gray_matter", "white_matter", or "ventricle").
+- Run the script:
+  ```bash
+  nohup python -u analysis/hrver/cross_corr_avg_pre_post_hrver.py > logs/cross_corr_pre_post_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+  ```
 
 ## Output
 
