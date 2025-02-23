@@ -164,7 +164,7 @@ nohup bash analysis/nki/randomise_nki_young_old.sh > logs/randomise_nki_$(date +
 
 ### HRV-ER Dataset Analysis
 
-#### PVE Analysis (Young vs Old)
+#### 1. PVE Analysis (Young vs Old)
 The `pve_hrver.py` script analyzes the PVE of BOLD explained by HR and CO2 in the HRV-ER dataset.
 
 Available covariates:
@@ -186,7 +186,7 @@ nohup bash analysis/hrver/randomise_hrver_young_old.sh > logs/randomise_hrver_$(
 
 The cross-correlation analysis can be performed to compare physiological signals (HR and CO2) with BOLD signals across different conditions (young vs. old and pre vs. post).
 
-#### 1. Cross Correlation: Young vs. Old Analysis
+#### 2. Cross Correlation: Young vs. Old Analysis
 
 To run the cross-correlation analysis for young vs. old participants:
 
@@ -197,7 +197,7 @@ To run the cross-correlation analysis for young vs. old participants:
   nohup python -u analysis/hrver/cross_corr_avg_young_old_hrver.py > logs/cross_corr_young_old_$(date +%Y%m%d_%H%M%S).log 2>&1 &
   ```
 
-#### 2. Cross Correlation: Pre vs. Post Analysis
+#### 3. Cross Correlation: Pre vs. Post Analysis
 
 To run the cross-correlation analysis for pre vs. post conditions:
 
@@ -212,14 +212,23 @@ To run the cross-correlation analysis for pre vs. post conditions:
 
 ## Output
 
+### PVE Analysis
 The analysis creates directories named according to the covariates used. For example:
-- `results/nki_pve_results_gender/` - results controlling for gender only
-- `results/hrver_pve_results_gender_avg_hr/` - results controlling for gender and average heart rate
+- `results/nki/pve_results_gender/` - results controlling for gender only
+- `results/hrver/pve_results_gender_avg_hr/` - results controlling for gender and average heart rate
 
 Each directory contains:
 - `*_cov_young_old.nii.gz` - Variance explained maps
 - `design_matrix.txt` - Design matrix for FSL randomise
 - `contrast_matrix.txt` - Contrast matrix for FSL randomise
+
+### Cross Correlation Analysis 
+The analysis creates directories named according to the type of cross correlation analysis performed. For example: 
+- `results/hrver/cross_corr_avg_pre_post_older_osc+` - results comparing cross correlation before and after osc+ in older adults 
+- `results/hrver/cross_corr_avg_young_old` - results comparing cross correlation between older and younger adults 
+
+Each directory contains contains the cross correlation analysis performed on the specified tissue type. For example: 
+- `gray_matter.png` - HR-BOLD and CO2-BOLD cross correlation analysis done on BOLD signal averagd over gray matter, which significant regions shaded.
 
 ## Logs
 
