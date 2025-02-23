@@ -270,8 +270,8 @@ The whole brain cross-correlation analysis results are stored in the `results/hr
     ├── co2_young-gt-old_corrp_4d.nii.gz       - TFCE-corrected p-values for CO2 correlations (young > old).
     ├── hr_old-gt-young_corrp_4d.nii.gz        - TFCE-corrected p-values for HR correlations (old > young).
     └── co2_old-gt-young_corrp_4d.nii.gz       - TFCE-corrected p-values for CO2 correlations (old > young).
-Each statistical map is saved in NIfTI format and can be visualized using neuroimaging software such as AFNI.
 ```
+Each statistical map is saved in NIfTI format and can be visualized using neuroimaging software such as AFNI.
 
 ## Logs
 
