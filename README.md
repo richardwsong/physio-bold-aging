@@ -105,8 +105,8 @@ pip install -r requirements.txt
 ```
 
 3. **Change File Paths**:
-   - Before running the analysis, ensure that the file paths in the utility scripts match your directory structure.
-   - Open the `utils/file_paths_hrver.py` file and verify the following path definitions:
+Before running the analysis, ensure that the file paths in the utility scripts match your directory structure.
+Open the `utils/file_paths_hrver.py` file and verify the following path definitions:
      - The physiological data path is defined as:
        ```python
        physio_path = os.path.join(f'/data1/neurdylab/songrw/derivates/hrv_er/preproc_physio_ses-{session}', sub_id, f'{sub_id}_ses-{session}_task-rest_physio_physOUT.mat')
@@ -115,7 +115,7 @@ pip install -r requirements.txt
        ```python
        bold_path = os.path.join(f'/data1/neurdylab/datasets/HRV-ER/HRV-ER_proc/{sub_id}/ses-{session}/func/ants_out', f'{sub_id}_ses-{session}_task-rest_bold_mo_EPI2MNI_sm_nr.nii.gz')
        ```
-   - Ensure that these paths reflect the actual locations of your physiological and BOLD data files.
+Ensure that these paths reflect the actual locations of your physiological and BOLD data files.
 
 ## Preprocessing Instructions
 
