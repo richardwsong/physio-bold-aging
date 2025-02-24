@@ -5,9 +5,9 @@
 % Set up paths and load data
 dir = '/path/to/output/';              % Output directory for processed data
 D = "/path/to/physio_data/";           % Source directory containing raw physiological data
-physio_QA = load('/path/to/subject_info.mat');  % Load subject information
 session = 'pre';                       % Session identifier (e.g., 'pre', 'post')
-id = string(physio_QA.id);            % Array of subject IDs
+data = readtable(append('/hrver_ses_', session, '_age_gender.csv'));  % Read the CSV file
+id = string(data.sub_id);            % Array of subject IDs
 
 for i = 1:numel(id)
     try
@@ -25,7 +25,7 @@ for i = 1:numel(id)
         fname = append(D, '/', name, '/ses-', session, '/func/', name, '_ses-', session, '_task-rest_physio.json');
         fid = fopen(fname); 
         raw = fread(fid,inf); 
-        str = char(raw'); 
+        str = char(raw); 
         fclose(fid); 
         val = jsondecode(str);
         fs_phys = 1000;                % Sampling frequency in Hz

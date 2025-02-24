@@ -11,7 +11,8 @@
 import argparse
 import sys, os
 
-sys.path.insert(0, '/data1/neurdylab/eegfmri_vu_pipeline/scripts/ants_python/')
+# add the path to the antsRegFunctions.py file
+sys.path.insert(0, 'preprocessing/ants_python/')
 from antsRegFunctions import ants_registration
 
 

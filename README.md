@@ -74,19 +74,12 @@ This repository contains the analysis code for investigating the relationship be
 Python version:
 - Python 3.8.8
 
-Python packages (specified versions in requirements.txt):
-- matplotlib
-- nibabel
-- numpy
-- pandas
-- scipy
-- seaborn
-
 Additional requirements:
 - FSL 6.0.1
-- AFNI
-- ANTs
-- MATLAB (for physiological preprocessing)
+- AFNI 21.1.03
+- ANTs 2.3.0
+- OpenMPI 3.1.4
+- MATLAB 2020b
 
 ## Setup
 
@@ -107,15 +100,42 @@ pip install -r requirements.txt
 3. **Change File Paths**:
 Before running the analysis, ensure that the file paths in the utility scripts match your directory structure.
 Open the `utils/file_paths_hrver.py` file and verify the following path definitions:
-     - The physiological data path is defined as:
+   - The physiological data path is defined as:
        ```python
        physio_path = os.path.join(f'/data1/neurdylab/songrw/derivates/hrv_er/preproc_physio_ses-{session}', sub_id, f'{sub_id}_ses-{session}_task-rest_physio_physOUT.mat')
        ```
-     - The BOLD data path is defined as:
+   - The BOLD data path is defined as:
        ```python
        bold_path = os.path.join(f'/data1/neurdylab/datasets/HRV-ER/HRV-ER_proc/{sub_id}/ses-{session}/func/ants_out', f'{sub_id}_ses-{session}_task-rest_bold_mo_EPI2MNI_sm_nr.nii.gz')
        ```
-Ensure that these paths reflect the actual locations of your physiological and BOLD data files.
+   Ensure that these paths reflect the actual locations of your physiological and BOLD data files.
+
+   Before running the preprocessing, ensure that the following file paths in `preprocessing/preproc_imaging.sh` match your directory structure:
+   - `maindir_raw` - The main directory containing the raw fMRI data:
+     ```bash
+     maindir_raw=/data1/neurdylab/datasets/HRV-ER/HRV-ER_raw 
+     ```
+   - `maindir_proc` - The main directory where processed data will be saved:
+     ```bash
+     maindir_proc=/data1/neurdylab/datasets/HRV-ER/HRV-ER_proc
+     ```
+   - `scripts_path` - The path to the scripts used for processing:
+     ```bash
+     scripts_path="/data1/neurdylab/scripts/vu_meica_pipeline"
+     ```
+   - `afni_init` - The command to initialize AFNI:
+     ```bash
+     afni_init="singularity exec --bind /data1:/data1 ${scripts_path}/afni_cmake_build_AFNI_21.1.03.sif"
+     ```
+
+     You also need to ensure the following file paths in `preprocessing/preproc_physio.m` match your directory structure: 
+     ```matlab 
+      dir = '/path/to/output/';              % Output directory for processed data
+      D = "/path/to/physio_data/";           % Source directory containing raw physiological data
+      session = 'pre';                       % Session identifier (e.g., 'pre', 'post')
+      data = readtable(append('/hrver_ses_', session, '_age_gender.csv'));  % Read the CSV file
+      id = string(data.sub_id);            % Array of subject IDs
+     ```
 
 ## Preprocessing Instructions
 
@@ -123,20 +143,14 @@ Before running the analysis, you'll need to preprocess both the physiological an
 
 ### Physiological Data
 ```bash
+# Edit paths in preproc_physio.m first
 matlab preprocessing/preproc_physio.m
 ```
 
 ### fMRI Data
 ```bash
 # Edit paths in preproc_imaging.sh first
-# Then run the preprocessing pipeline
 bash preprocessing/preproc_imaging.sh
-
-# The script performs:
-# 1. Motion correction
-# 2. Slice timing correction
-# 3. Registration to MNI space
-# 4. Spatial smoothing
 ```
 
 ## Running the Analysis
@@ -183,10 +197,16 @@ nohup python -u analysis/hrver/pve_hrver.py > logs/pve_hrver_$(date +%Y%m%d_%H%M
 # Run FSL randomise on the results
 nohup bash analysis/hrver/randomise_hrver_young_old.sh > logs/randomise_hrver_$(date +%Y%m%d_%H%M%S).log 2>&1 &
 ```
+The analysis creates directories named according to the covariates used. For example:
+- `results/nki/pve_results_gender/` - results controlling for gender only
+- `results/hrver/pve_results_gender_avg_hr/` - results controlling for gender and average heart rate
 
-The cross-correlation analysis can be performed to compare physiological signals (HR and CO2) with BOLD signals across different conditions (young vs. old and pre vs. post).
+Each directory contains:
+- `*_cov_young_old.nii.gz` - Variance explained maps
+- `design_matrix.txt` - Design matrix for FSL randomise
+- `contrast_matrix.txt` - Contrast matrix for FSL randomise
 
-#### 2. Cross-Correlation (tissue specific): Young vs. Old Analysis
+#### 2. Cross-Correlation (tissue specific)
 
 To run the cross-correlation analysis for young vs. old participants:
 
@@ -196,8 +216,6 @@ To run the cross-correlation analysis for young vs. old participants:
   ```bash
   nohup python -u analysis/hrver/cross_corr_avg_young_old_hrver.py > logs/cross_corr_young_old_$(date +%Y%m%d_%H%M%S).log 2>&1 &
   ```
-
-#### 3. Cross-Correlation (tissue specific): Pre vs. Post Analysis
 
 To run the cross-correlation analysis for pre vs. post conditions:
 
@@ -210,7 +228,15 @@ To run the cross-correlation analysis for pre vs. post conditions:
   nohup python -u analysis/hrver/cross_corr_avg_pre_post_hrver.py > logs/cross_corr_pre_post_$(date +%Y%m%d_%H%M%S).log 2>&1 &
   ```
 
-#### 4. Cross-Correlation (whole brain): Young vs. Old Analysis
+The analysis creates directories named according to the type of cross correlation analysis performed. For example: 
+- `results/hrver/cross_corr_avg_pre_post_older_osc+` - results comparing cross correlation before and after osc+ in older adults 
+- `results/hrver/cross_corr_avg_young_old` - results comparing cross correlation between older and younger adults 
+
+Each directory contains contains the cross correlation analysis performed on the specified tissue type. For example: 
+- `gray_matter.png` - HR-BOLD and CO2-BOLD cross correlation analysis done on BOLD signal averagd over gray matter, which significant regions shaded.
+
+
+#### 3. Cross-Correlation (whole brain): Young vs. Old Analysis
 
 To run the cross-correlation analysis for young vs. old participants:
 
@@ -235,28 +261,6 @@ def main(start_lag=-1, end_lag=9): # These are the lags (in TRs) used in the pap
   nohup python -u analysis/hrver/cross_corr_whole_brain_young_old_hrver.py > logs/cross_corr_whole_brain_young_old_$(date +%Y%m%d_%H%M%S).log 2>&1 &
   ```
 
-## Output
-
-### PVE Analysis
-The analysis creates directories named according to the covariates used. For example:
-- `results/nki/pve_results_gender/` - results controlling for gender only
-- `results/hrver/pve_results_gender_avg_hr/` - results controlling for gender and average heart rate
-
-Each directory contains:
-- `*_cov_young_old.nii.gz` - Variance explained maps
-- `design_matrix.txt` - Design matrix for FSL randomise
-- `contrast_matrix.txt` - Contrast matrix for FSL randomise
-
-### Cross Correlation Analysis (tissue specific)
-The analysis creates directories named according to the type of cross correlation analysis performed. For example: 
-- `results/hrver/cross_corr_avg_pre_post_older_osc+` - results comparing cross correlation before and after osc+ in older adults 
-- `results/hrver/cross_corr_avg_young_old` - results comparing cross correlation between older and younger adults 
-
-Each directory contains contains the cross correlation analysis performed on the specified tissue type. For example: 
-- `gray_matter.png` - HR-BOLD and CO2-BOLD cross correlation analysis done on BOLD signal averagd over gray matter, which significant regions shaded.
-
-### Whole Brain Cross-Correlation Analysis 
-
 The whole brain cross-correlation analysis results are stored in the `results/hrver/cross_corr_whole_brain_young_old` directory. The structure of this directory is as follows:
 
 ```
@@ -272,6 +276,16 @@ The whole brain cross-correlation analysis results are stored in the `results/hr
     └── co2_old-gt-young_corrp_4d.nii.gz       - TFCE-corrected p-values for CO2 correlations (old > young).
 ```
 Each statistical map is saved in NIfTI format and can be visualized using neuroimaging software such as AFNI.
+
+#### 4. Physio stats 
+To obtain stats for the physiological metrics (rmssd, lf hrv, hf hrv, breathing rate, average heart rate, average end tidal co2), run: 
+ ```bash
+  nohup python -u analysis/hrver/physio_stats_hrver.py > logs/physio_stats_hrver_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+ ```
+The outputs are stored under the directory `results/hrver/physio_stats_hrver`, which will contain: 
+- `hrv_summary_statistics.csv` - mean and variances of the physiological metrics for each group (old/young, osc +/-, pre/post)
+- `hrv_between_group_statistics.csv` - old vs young t-stat and p-values for each physiological metric 
+- `hrv_within_group_statistics.csv` - pre vs post (osc +/- and old/young) t-stat and p-values for each physiological metric 
 
 ## Logs
 

@@ -3,14 +3,13 @@
 # Code for pre-processing HRV-ER fMRI data
 # on Vanderbilt cluster (ACCRE)
 
-# "main" directory with raw data
+# "main" directory with raw data (CHANGE THIS BASED ON YOUR DATA LOCATION)
 maindir_raw=/data1/neurdylab/datasets/HRV-ER/HRV-ER_raw
 
-# "main" directory that will contain our processed data
+# "main" directory that will contain our processed data (CHANGE THIS BASED ON YOUR DATA LOCATION)
 maindir_proc=/data1/neurdylab/datasets/HRV-ER/HRV-ER_proc
 
-# paths on platypus
-MNI_T1_2mm_template="/data1/neurdylab/MNI152_T1_2mm_brain.nii.gz"
+# paths on platypus (CHANGE THIS BASED ON YOUR DATA LOCATION)
 scripts_path="/data1/neurdylab/scripts/vu_meica_pipeline"
 afni_init="singularity exec --bind /data1:/data1 ${scripts_path}/afni_cmake_build_AFNI_21.1.03.sif" 
 
@@ -109,7 +108,11 @@ fi
 if ! [-e ${proc_func_dir}/${sub_id}_ses-pre_task-rest_echo-1_bold_mo]; then
         mot_co_check_path=$(ls ${proc_func_dir}/*.volreg_mats.aff12.1D) # assumes that there is only one file with that extension
 
-        curr_in="${raw_func_dir}/${sub_id}_ses-pre_task-rest_bold"
+        if [ -e "${raw_func_dir}/${sub_id}_ses-pre_task-rest_echo-1_bold.nii" ]; then
+            curr_in="${raw_func_dir}/${sub_id}_ses-pre_task-rest_echo-1_bold"
+        else
+            curr_in="${raw_func_dir}/${sub_id}_ses-pre_task-rest_bold"
+        fi
         curr_out="${proc_func_dir}/${sub_id}_ses-pre_task-rest_echo-1_bold_mo"
         cmd="${afni_init} 3dcopy ${curr_in}.nii ${proc_func_dir}/volreg_tmp"
         printf "Running ${cmd}\n" >> $log_file
@@ -236,7 +239,7 @@ if ! [ -e ${proc_func_dir}/ants_out/${func_prefix}_mo_EPI2T1.nii.gz ]; then
 echo "ants reg..."
 mkdir -p $proc_func_dir/ants_out
 
-# check playtpus tedana version 
+# check playtpus tedana version (based on the tedana version, the dn_ts_OC.nii.gz might be saved as desc-denoised_bold.nii.gz)
 applywarp --ref=${proc_anat_dir}/T1_unifize.nii.gz --in=${out_dir}/dn_ts_OC.nii.gz --out=${proc_func_dir}/ants_out/${func_prefix}_mo_EPI2T1.nii.gz \
 --postmat=${proc_func_dir}/oneVol_EPI2T1.mat
 
