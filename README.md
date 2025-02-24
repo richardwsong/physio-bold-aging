@@ -128,7 +128,7 @@ Open the `utils/file_paths_hrver.py` file and verify the following path definiti
      afni_init="singularity exec --bind /data1:/data1 ${scripts_path}/afni_cmake_build_AFNI_21.1.03.sif"
      ```
 
-     You also need to ensure the following file paths in `preprocessing/preproc_physio.m` match your directory structure: 
+   You also need to ensure the following file paths in `preprocessing/preproc_physio.m` match your directory structure: 
      ```matlab 
       dir = '/path/to/output/';              % Output directory for processed data
       D = "/path/to/physio_data/";           % Source directory containing raw physiological data
