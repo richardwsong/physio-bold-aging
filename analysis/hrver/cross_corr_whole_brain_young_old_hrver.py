@@ -256,11 +256,12 @@ def main(start_lag=-1, end_lag=9):
                 )
 
             # Run randomise
+            pve_dir = "results/hrver/pve_results_gender_lf_hf_avg_hr_avg_co2" # If a PVE analysis was done, you can use design and contrast matrices from the PVE analysis
             run_randomise(
                 temp_4d,
                 os.path.join(output_dir, "temp", f"{measure}_lag_{lag_idx}"),
-                os.path.join(output_dir, "design.mat"),
-                os.path.join(output_dir, "design.con"),
+                os.path.join(pve_dir if os.path.exists(pve_dir) else output_dir, "design.mat"),
+                os.path.join(pve_dir if os.path.exists(pve_dir) else output_dir, "design.con"),
                 n_permutations=1000
             )
 

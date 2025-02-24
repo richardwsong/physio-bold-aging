@@ -8,7 +8,7 @@ module load FSL
 
 # Define paths for mask, output directory, and input files
 mask_path="data/masks/MNI152_T1_2mm_brain.nii"
-output_dir="results/hrver/pve_results_gender_lf_hf_avg_hr" # Change based on the covariates used in the analysis
+output_dir="results/hrver/pve_results_gender_lf_hf_avg_hr_avg_co2" # Change based on the covariates used in the analysis
 randomise_output_dir="$output_dir/randomise"
 
 # Create the randomise output directory if it doesn't exist

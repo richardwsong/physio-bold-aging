@@ -33,42 +33,6 @@ This repository contains the analysis code for investigating the relationship be
 └── logs/              # Analysis logs with timestamps (you can create this)
 ```
 
-## Data Preprocessing Pipeline
-
-### Physiological Data Processing
-- Processes respiration, CO2, and cardiac measures from fMRI sessions
-- Generates physiological regressors for fMRI analysis
-- Performs outlier detection and cleaning of heart rate data
-- Creates visualization plots for QA
-
-### fMRI Preprocessing
-1. Motion correction using AFNI's 3dvolreg
-2. Slice timing correction
-3. Multi-echo ICA denoising using tedana
-4. Registration to anatomical T1 and MNI space
-5. Spatial smoothing and nuisance regression
-
-## Analysis Pipeline
-
-1. **Cross-correlation Analysis**
-   - Whole-brain cross-correlation maps for physiological signals
-   - Group comparisons between young and old participants
-   - Statistical testing using FSL's randomise
-
-2. **Variance Explained Analysis**
-   - Calculates percent variance in BOLD explained by:
-     - Heart rate
-     - Respiratory variation
-     - End-tidal CO2
-     - Combined physiological measures
-   - Age group comparisons
-   - Pre vs post HRV Biofeedback training comparisons
-
-3. **Physiological Statistics**
-   - HRV metrics calculation (SDNN, RMSSD, LF/HF)
-   - Breathing rate analysis
-   - Group comparisons and statistical testing
-
 ## Dependencies
 
 Python version:
@@ -113,19 +77,10 @@ Open the `utils/file_paths_hrver.py` file and verify the following path definiti
    Before running the preprocessing, ensure that the following file paths in `preprocessing/preproc_imaging.sh` match your directory structure:
    - `maindir_raw` - The main directory containing the raw fMRI data:
      ```bash
-     maindir_raw=/data1/neurdylab/datasets/HRV-ER/HRV-ER_raw 
-     ```
-   - `maindir_proc` - The main directory where processed data will be saved:
-     ```bash
-     maindir_proc=/data1/neurdylab/datasets/HRV-ER/HRV-ER_proc
-     ```
-   - `scripts_path` - The path to the scripts used for processing:
-     ```bash
-     scripts_path="/data1/neurdylab/scripts/vu_meica_pipeline"
-     ```
-   - `afni_init` - The command to initialize AFNI:
-     ```bash
-     afni_init="singularity exec --bind /data1:/data1 ${scripts_path}/afni_cmake_build_AFNI_21.1.03.sif"
+     maindir_raw=/data1/neurdylab/datasets/HRV-ER/HRV-ER_raw            #Directory of raw data 
+     maindir_proc=/data1/neurdylab/datasets/HRV-ER/HRV-ER_proc          #Directory to save preprocessed data 
+     scripts_path="/data1/neurdylab/scripts/vu_meica_pipeline"          #Parent directory of AFNI cmake
+     afni_init="singularity exec --bind /data1:/data1 ${scripts_path}/afni_cmake_build_AFNI_21.1.03.sif"     #Full path to AFNI cmake 
      ```
 
    You also need to ensure the following file paths in `preprocessing/preproc_physio.m` match your directory structure: 
@@ -287,25 +242,9 @@ The outputs are stored under the directory `results/hrver/physio_stats_hrver`, w
 - `hrv_between_group_statistics.csv` - old vs young t-stat and p-values for each physiological metric 
 - `hrv_within_group_statistics.csv` - pre vs post (osc +/- and old/young) t-stat and p-values for each physiological metric 
 
-## Logs
-
-All script outputs are stored in the `logs/` directory with timestamps:
-- `pve_nki_YYYYMMDD_HHMMSS.log` - Output from NKI analysis
-- `pve_hrver_YYYYMMDD_HHMMSS.log` - Output from HRV-ER analysis
-- `randomise_*_YYYYMMDD_HHMMSS.log` - Output from FSL randomise
-
 ## Data Availability 
 The HRV-ER dataset can be found online on [OpenNeuro][openneuro-link].
 Preprocessed Physiological Data for HRV-ER dataset is available on [Box][box-link].
-
-## Notes
-
-- The analysis uses parallel processing with 16 cores by default
-- Age groups are defined as:
-  - Young: < 50 years
-  - Old: ≥ 50 years
-- Design matrices are formatted for FSL compatibility
-- All physiological measures are detrended before analysis
 
 [openneuro-link]: https://openneuro.org/datasets/ds003823/versions/1.2.0
 [box-link]: https://vanderbilt.app.box.com/s/2v0qwfitb07crqjgtorlg5wtgs2y3mhk

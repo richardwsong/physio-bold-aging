@@ -417,10 +417,10 @@ def main():
             print(f"Error: {e}")
 
     # Specify which covariates to include
-    covariates = ['gender', 'lf', 'hf', 'avg_hr']  # Example: only control for gender
+    covariates = ['gender', 'lf', 'hf', 'avg_hr', 'avg_co2']  # Example: only control for gender
 
     # Create output directory name that includes all covariates
-    output_dir = 'results/hrver_pve_results_' + '_'.join(covariates)
+    output_dir = 'results/hrver/pve_results_' + '_'.join(covariates)
     os.makedirs(output_dir, exist_ok=True)
 
     # Save variance explained results as NIfTI files
