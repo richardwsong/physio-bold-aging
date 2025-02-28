@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import warnings 
 import neurokit2 as nk
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.append('/data1/neurdylab/songrw/scripts/physio-bold-aging')  # REPLACE WITH YOUR PATH  
 
 from utils.file_paths_hrver import get_file_paths
 warnings.filterwarnings("ignore")
@@ -402,7 +402,7 @@ def main():
     physio_stats = np.zeros((N, 5))
 
     # Parallel processing of participants
-    num_cores = 16
+    num_cores = min(os.cpu_count()//2, 16)
     with concurrent.futures.ProcessPoolExecutor(max_workers=num_cores) as executor: 
         try:
             futures = [executor.submit(process_participant, i, subs, mask_indices, session) for i in range(N)]

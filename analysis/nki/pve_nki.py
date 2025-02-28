@@ -339,7 +339,7 @@ def main():
     physio_stats = np.zeros((N, 5))
 
     # Parallel processing of participants
-    num_cores = 16
+    num_cores = min(os.cpu_count()//2, 16)
     with concurrent.futures.ProcessPoolExecutor(max_workers=num_cores) as executor: 
         try:
             futures = [executor.submit(process_participant, i, subs, mask_indices) for i in range(N)]
@@ -354,12 +354,14 @@ def main():
             print(f"Error: {e}")
 
     # Specify which covariates to include
-    covariates = ['gender', 'lf', 'hf', 'avg_hr', 'sd_rv', 'br']  # Example: only control for gender and average heart rate
+    covariates = []  # Example: only control for gender and average heart rate
 
     if len(covariates) == 6:
-        output_dir = 'results/nki_pve_results_all_covariates'
+        output_dir = 'results/nki/pve_results_all_covariates'
+    elif len(covariates) == 0:
+        output_dir = 'results/nki/pve_results_no_covariates'
     else:
-        output_dir = 'results/nki_pve_results_gender'
+        output_dir = 'results/nki/pve_results' + '_'.join(covariates)
     os.makedirs(output_dir, exist_ok=True)
 
     # Save variance explained results as NIfTI files

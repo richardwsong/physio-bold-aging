@@ -132,7 +132,8 @@ def main():
     df_post = df_post[df_post['sub_id'].isin(df_pre['sub_id'])]
     
     results_dict = {'pre': {}, 'post': {}}
-    with ProcessPoolExecutor(max_workers=16) as executor:
+    num_cores = min(os.cpu_count()//2, 16)
+    with concurrent.futures.ProcessPoolExecutor(max_workers=num_cores) as executor:
         # Create all futures
         futures = []
         for sub_id in df_pre['sub_id'].values:

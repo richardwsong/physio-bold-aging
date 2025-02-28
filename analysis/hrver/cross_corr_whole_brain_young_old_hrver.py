@@ -111,7 +111,8 @@ def process_single_lag(subs_id, ages, lag, start_lag, x, y, z):
     co2_old_data = []
     
     # Process participants in parallel for this lag
-    with concurrent.futures.ProcessPoolExecutor(max_workers=16) as executor:
+    num_cores = min(os.cpu_count()//2, 16)
+    with concurrent.futures.ProcessPoolExecutor(max_workers=num_cores) as executor:
         futures = {executor.submit(process_participant_single_lag, sub_id, lag, start_lag): (sub_id, age) 
                   for sub_id, age in zip(subs_id, ages)}
         

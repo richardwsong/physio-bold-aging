@@ -119,7 +119,8 @@ def main():
     
     # Process all participants in parallel
     results = []
-    with ProcessPoolExecutor(max_workers=16) as executor:
+    num_cores = min(os.cpu_count()//2, 16)
+    with concurrent.futures.ProcessPoolExecutor(max_workers=num_cores) as executor:
         future_to_subj = {executor.submit(process_participant, sub_id, age): (sub_id, age)
                          for sub_id, age in zip(df.iloc[:, 0].values, df.iloc[:, 2].values)}
         
