@@ -510,7 +510,11 @@ def create_old_young_violins(df):
 
     plt.tight_layout()
     fig.subplots_adjust(wspace=0.3, hspace=0.3)
-    plt.show()
+
+    # save the figure
+    if not os.path.exists('results/hrver/physio_stats_hrver'):
+        os.makedirs('results/hrver/physio_stats_hrver')
+    fig.savefig('results/hrver/physio_stats_hrver/hrver_physio_violins.png', dpi=300)
 
 # Modify the main analysis execution to use the updated functions
 def run_updated_analysis():
