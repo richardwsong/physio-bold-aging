@@ -322,9 +322,10 @@ def main():
     - Processes each participant's data in parallel.
     - Saves variance explained results as NIfTI files.
     - Generates and saves design and contrast matrices for further analysis.
+    - Creates and saves group average plots for percent variance explained.
     """
     # Load demographic data and brain mask
-    df = pd.read_csv('data/nki_age_gender_v2.csv')
+    df = pd.read_csv('data/nki_age_gender_v3.csv')
     subs = df['sub_id'].values
     age = df['age'].values
     gender = df['gender'].values
@@ -359,7 +360,7 @@ def main():
     if len(covariates) == 6:
         output_dir = 'results/nki/pve_results_all_covariates'
     elif len(covariates) == 0:
-        output_dir = 'results/nki/pve_results_no_covariates'
+        output_dir = 'results/nki/pve_results_no_covariates_v3'
     else:
         output_dir = 'results/nki/pve_results' + '_'.join(covariates)
     os.makedirs(output_dir, exist_ok=True)
@@ -373,6 +374,22 @@ def main():
 
     contrast = create_contrast_matrix(n_covariates=len(covariates))
     np.savetxt(os.path.join(output_dir, 'contrast_matrix.txt'), contrast, fmt='%d')
+    
+    # Create group average plots for percent variance explained
+    print("Creating group average plots...")
+    
+    # Get young and old indices from the design matrix
+    young_indices = np.where(design[:, 0] == 1)[0]
+    old_indices = np.where(design[:, 1] == 1)[0]
+    
+    # Calculate group averages
+    young_avg = np.mean(hrrv_cov[:, :, :, young_indices], axis=3)
+    old_avg = np.mean(hrrv_cov[:, :, :, old_indices], axis=3)
+    
+    # Save group average maps as NIfTI files
+    save_nifti(young_avg, affine, os.path.join(output_dir, 'young_avg_pve.nii.gz'))
+    save_nifti(old_avg, affine, os.path.join(output_dir, 'old_avg_pve.nii.gz'))
+    
     
     print("Done!")
     #os.system('bash /path/to/randomise_young_old_baseline.sh') # Run randomise script for group comparison
