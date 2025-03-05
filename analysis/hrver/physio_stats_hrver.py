@@ -243,6 +243,7 @@ def handle_metric_outliers(df, columns=None, multiplier=1.5):
     return df_clean
 
 # Updated create_summary_table function to handle NaN values in metrics
+# Updated create_summary_table function to ensure proper subject matching for paired t-tests
 def create_summary_table(df_pre, df_post, df_pre_only, metrics):
     from scipy import stats
     import numpy as np
@@ -304,30 +305,28 @@ def create_summary_table(df_pre, df_post, df_pre_only, metrics):
             mask_pre = (df_pre['Age Category'] == age) & (df_pre['OSC'] == osc)
             mask_post = (df_post['Age Category'] == age) & (df_post['OSC'] == osc)
             
-            pre_data_all = df_pre[mask_pre]
-            post_data_all = df_post[mask_post]
+            pre_data_all = df_pre[mask_pre].copy()
+            post_data_all = df_post[mask_post].copy()
             
             # Only keep subjects that are in both pre and post
             common_subjects = set(pre_data_all['Subject']).intersection(set(post_data_all['Subject']))
-
-            #print(f"Common subjects: {common_subjects} in {metric} and group {group}")
             
-            # Filter to common subjects and handle NaN values properly for this specific metric
-            pre_data = pre_data_all[pre_data_all['Subject'].isin(common_subjects)]
-            post_data = post_data_all[post_data_all['Subject'].isin(common_subjects)]
+            # FIX: Ensure consistent ordering by subject ID before statistical tests
+            # Filter to common subjects and sort by Subject ID for consistency
+            pre_data = pre_data_all[pre_data_all['Subject'].isin(common_subjects)].sort_values('Subject')
+            post_data = post_data_all[post_data_all['Subject'].isin(common_subjects)].sort_values('Subject')
             
-            # if group == 'old_osc+':
-            #     print(f"Subjects: {pre_data['Subject']}")
-            #     print(f"Pre data: {pre_data[metric]}")
-            #     print(f"Post data: {post_data[metric]}")
-
-            # Create matched pairs by dropping NaNs in either dataset for this metric
+            # Verify subjects are in the same order in both dataframes
+            assert all(pre_data['Subject'].values == post_data['Subject'].values), "Subject mismatch in pre and post data"
+            
+            # FIX: Create matched pairs by ensuring subject alignment and then dropping NaNs in either dataset
             paired_data = pd.DataFrame({
                 'Subject': pre_data['Subject'].values,
                 'pre': pre_data[metric].values,
                 'post': post_data[metric].values
             })
-
+            
+            # Now we can safely drop NaN values knowing subjects are aligned
             paired_data = paired_data.dropna()
             
             # Calculate means and variances
